@@ -1,0 +1,46 @@
+<?php
+/**
+ * @file
+ * Main module file.
+ */
+
+/**
+ * Implements hook_rules_category_info().
+ */
+function fluxservice_extension_rules_category_info() {
+	$info =  array();
+  // Use the same icon as for the service plugin.
+	$info['fluxservice_extension'] = array(
+		'label' => t('Fluxservice extension')
+	);
+	return $info;
+}
+
+/**
+ * Implements hook_fluxservice_plugin_directory().
+ */
+function fluxservice_extension_fluxservice_plugin_directory() {
+	return 'lib/Drupal/fluxservice_extension/Plugin';
+}
+
+
+/**
+ * 
+ */
+function fluxservice_extension_task_type_get_options(){
+	return FluxServiceQueuedTasks::getOptions();
+}
+
+/**
+ * 
+ */
+function fluxservice_extension_task_priority_get_options(){
+	return array(0,1,2,3,5);
+}
+
+/**
+ * 
+ */
+function fluxservice_extension_change_type_get_options(){
+	return array('create'=>'create','delete'=>'delete','update'=>'update');
+}

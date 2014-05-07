@@ -1,0 +1,73 @@
+  <?php
+
+  function fluxtrello_schema(){
+    $schema=array();
+    $schema['fluxservice_queue'] = array(
+      'description' => 'Fluxservice queue: if a service is unavailable the operations are stored here for later execution',
+      'fields' => array(
+        'id' => array(
+          'description' => 'Task id',
+          'type' => 'serial',
+          'size' => 'big',
+          'not null' => TRUE,
+          ),
+        'local_id' => array(
+          'description' => 'Id of the local entity',
+          'type' => 'int',
+          'not null' => TRUE,
+          ),
+        'local_type' => array(
+          'description' => 'Type of the local entity',
+          'type' => 'varchar',
+          'length' => '50',
+          'not null' => TRUE,
+          ),
+        'request' => array(
+          'description' => 'Request string used by the task',
+          'type' => 'text',
+          'not null' => FALSE,
+          ),
+        'remote_id' => array(
+          'description' => 'Id of the remote entity',
+          'type' => 'int',
+          'not null' => FALSE,
+          ),
+        'remote_type' => array(
+          'description' => 'Type of the remote entity',
+          'type' => 'varchar',
+          'length' => '50',
+          'not null' => TRUE,
+          ),
+        'callback' => array(
+          'description' => 'Type of the task (e.g. post,put,delete)',
+          'type' => 'varchar',
+          'length' => '20',
+          'not null' => TRUE,
+          ),
+        'task_priority' => array(
+          'description' => 'Priority of the task',
+          'type' => 'int',
+          'size' => 'tiny',
+          'not null' => TRUE,
+          ),
+        'attempts' => array(
+          'description' => 'Number of attempts to process the action',
+          'type' => 'int',
+          'not null' => TRUE,
+          ),
+        'failed' => array(
+          'description' => 'Boolean which is true if the task failed',
+          'type' => 'int',
+          'size' => 'tiny',
+          'not null' => TRUE,
+          ),
+        'time' => array(
+          'description' => 'Timestamp when the change happend',
+          'type' => 'int',
+          'not null' => TRUE,
+          ),
+        ),
+        'primary key' => array('id'),
+      );
+  return $schema;
+}

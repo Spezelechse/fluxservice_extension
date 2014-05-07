@@ -1,0 +1,16 @@
+name = flux service extension
+description = Extends the fluxservice module with logic for create, update and delete local and remote object, and provides a queue for storing operations
+package = fluxkraft
+core = 7.x
+php = 5.3
+dependencies[] = fluxservice
+dependencies[] = rules_scheduler
+dependencies[] = date
+dependencies[] = field_collection
+
+; Information added by drupal.org packaging script on 2013-09-20
+version = "7.x-1.0-beta1+17-dev"
+core = "7.x"
+project = "fluxservice_extension"
+datestamp = "1379674436"
+
