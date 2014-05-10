@@ -5,7 +5,7 @@
  * Contains FluxserviceEventHandlerBase.
  */
 
-namespace Drupal\fluxservice\Plugin\Rules\Event;
+namespace Drupal\fluxservice_extension\Plugin\Rules\Event;
 
 use Drupal\fluxservice\Rules\DataUI\AccountEntity;
 use Drupal\fluxservice\Rules\DataUI\ServiceEntity;
@@ -38,7 +38,7 @@ abstract class FluxserviceEventHandlerBase extends CronEventHandlerBase {
     return array(
       'type' => 'fluxservice_account',
       'bundle' => 'fluxservice',
-      'label' => t('Fluxservice account'),
+      'label' => t('Service account'),
       'description' => t('The account used for authenticating with the Fluxservice API.'),
     );
   }

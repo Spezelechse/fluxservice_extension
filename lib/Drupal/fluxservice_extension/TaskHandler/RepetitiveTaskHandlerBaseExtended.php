@@ -5,14 +5,14 @@
  * Contains RepetitiveTaskHandlerBaseExtended.
  */
 
-namespace Drupal\fluxservice\TaskHandler;
+namespace Drupal\fluxservice_extension\TaskHandler;
 
 use Drupal\fluxservice\Rules\TaskHandler\RepetitiveTaskHandlerBase;
 use Guzzle\Http\Exception\BadResponseException;
-use Drupal\fluxservice\TrelloTaskQueue;
+use Drupal\fluxservice_extension\FluxserviceTaskQueue;
 
 /**
- * Base class for Trello task handlers that dispatch Rules events.
+ * Base class for remote task handlers that dispatch Rules events.
  */
 abstract class RepetitiveTaskHandlerBaseExtended extends RepetitiveTaskHandlerBase {
   protected $needed_types=array();
@@ -50,12 +50,12 @@ abstract class RepetitiveTaskHandlerBaseExtended extends RepetitiveTaskHandlerBa
   }
 
   /**
-   * Gets the configured Trello account.
+   * Gets the configured account.
    *
    * @throws \RulesEvaluationException
    *   If the account cannot be loaded.
    *
-   * @return \Drupal\fluxservice\Plugin\Service\TrelloAccount
+   * @return Account
    */
   public function getAccount() {
     $account = entity_load_single('fluxservice_account', $this->task['data']['account']);
@@ -192,8 +192,8 @@ abstract class RepetitiveTaskHandlerBaseExtended extends RepetitiveTaskHandlerBa
  * @param array $entities
  * An array of arrays defining the entities
  * 
- * @param TrelloAccount (service account) $account
- * The account used to connect to trello
+ * @param Account (service account) $account
+ * The account used to connect to the restful service
  * 
  * @param string $change_type
  * Event type that happend to the entity (create, delete, update)
@@ -221,7 +221,7 @@ abstract class RepetitiveTaskHandlerBaseExtended extends RepetitiveTaskHandlerBa
   }
 
 /**
- * Checks for trello "updates" and invoke the appropriate events
+ * Checks for remote "updates" (create,update,delete) and invoke the appropriate events
  */
   public function checkAndInvoke(){
     $account = $this->getAccount();
@@ -280,7 +280,7 @@ abstract class RepetitiveTaskHandlerBaseExtended extends RepetitiveTaskHandlerBa
   }
 
 /**
- * checks which event is needed for the given trello data_set
+ * checks which event is needed for the given remote data_set
  */
   private function checkSingleResponseSet($data_set, &$create, &$update, &$update_local_ids){
     $res=db_select($this->task['module_name'],'fm')
@@ -340,14 +340,14 @@ abstract class RepetitiveTaskHandlerBaseExtended extends RepetitiveTaskHandlerBa
    * 
    */
   protected function processQueue(){
-    $queue=new TrelloTaskQueue($this->getEntityType(),$this->getAccount());
+    $queue=new FluxserviceTaskQueue($this->getEntityType(),$this->getAccount());
 
     $queue->process();
   }
 
   /**
-   * @brief Get trello datasets
-   * @details Gets all trello entries needed to handle this datatype
+   * @brief Get remote datasets
+   * @details Gets all remote entries needed to handle this datatype
    * @return array (entry id => array (property name => value))
    */
   abstract protected function getRemoteDatasets();

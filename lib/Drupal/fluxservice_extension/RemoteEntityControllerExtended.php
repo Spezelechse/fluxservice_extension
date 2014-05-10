@@ -5,7 +5,7 @@
  * Contains RemoteEntityControllerExtended.
  */
 
-namespace Drupal\fluxservice;
+namespace Drupal\fluxservice_extension;
 
 use Drupal\fluxservice\Entity\FluxEntityInterface;
 use Drupal\fluxservice\RemoteEntityController;
@@ -17,16 +17,15 @@ use Guzzle\Http\Exception\BadResponseException;
  */
 abstract class RemoteEntityControllerExtended extends RemoteEntityController {
 /**
- * Creates a new database entry
+ * Creates a new database entry at the mapping table
  */
-  public function createLocal(RemoteEntityInterface $remote_entity, $local_entity_id, $local_entity_type, $isNode){
-    $fields=array('id', 'type', 'isNode', 'remote_id', 'remote_type', 'trello_id', 'touched_last', 'checksum');
+  public function createLocal(RemoteEntityInterface $remote_entity, $local_entity_id, $local_entity_type){
+    $fields=array('id', 'type', 'remote_id', 'remote_type', 'remote_id', 'touched_last', 'checksum');
     $values=array($local_entity_id, 
                   $local_entity_type,
-                  $isNode,
                   $remote_entity->id, 
                   $remote_entity->entityType(), 
-                  $remote_entity->trello_id,
+                  $remote_entity->remote_id,
                   time(),
                   $remote_entity->checksum);
 
@@ -36,20 +35,22 @@ abstract class RemoteEntityControllerExtended extends RemoteEntityController {
       array_push($values, $remote_entity->idBoard);
     }
     else{
-      array_push($values, $remote_entity->trello_id);
+      array_push($values, $remote_entity->remote_id);
     }
 
-    $nid=db_insert('fluxtrello')
+    $module_name=explode('_', $remote_entity->entityType());
+
+    $nid=db_insert($module_name[0])
       ->fields($fields)
       ->values($values)
       ->execute();
   }
 
-  public function createRemote($local_entity_id, $local_entity_type, $isNode, $account, $remote_entity, $request="", $remote_type=""){
+  public function createRemote($local_entity_id, $local_entity_type, $account, $remote_entity, $request="", $remote_type=""){
     $client=$account->client();
 
     if($remote_entity!=null){
-      $req=$this->createRequest($client, $remote_entity);
+      $req=$this->createRequest($client, 'create', $remote_entity);
       $remote_type=$remote_entity->entityType();
     }
     else if($request!=""){
@@ -59,7 +60,7 @@ abstract class RemoteEntityControllerExtended extends RemoteEntityController {
       //TODO: throw error missing argument
     }
 
-    //extract trello type
+    //extract remote object type
     $type=$remote_type;
     $type_split=explode("_",$type);
     $type=$type_split[1];
@@ -80,13 +81,12 @@ abstract class RemoteEntityControllerExtended extends RemoteEntityController {
                             'task_priority'=>2,
                             'local_id'=>$local_entity_id,
                             'local_type'=>$local_entity_type,
-                            'isNode'=>$isNode,
                             'request'=>$req,
                             'remote_type'=>$remote_type),
                             $e->getResponse()->getMessage());
       }
       else{
-        watchdog('fluxtrello @ '.$operation, $e->getResponse()->getMessage());
+        watchdog('fluxservice @ '.$operation, $e->getResponse()->getMessage());
       }
     }
 
@@ -96,15 +96,15 @@ abstract class RemoteEntityControllerExtended extends RemoteEntityController {
       $remoteEntity = fluxservice_entify($response, $remote_type, $account);
 
       //create local database entry
-      $this->createLocal($remoteEntity, $local_entity_id, $local_entity_type, $isNode);
+      $this->createLocal($remoteEntity, $local_entity_id, $local_entity_type);
       return $remoteEntity;
     }
   }
 
-  public function deleteRemote($local_entity_id, $local_entity_type, $isNode, $account, $remote_type, $trello_id){
+  public function deleteRemote($local_entity_id, $local_entity_type, $account, $remote_type, $remote_id){
     $client=$account->client();
 
-    $req=$this->createRequest($client, null, $trello_id);
+    $req=$this->createRequest($client, 'delete', null, $remote_id);
     
     $type_split=explode("_",$remote_type);
     $type=$type_split[1];
@@ -125,27 +125,27 @@ abstract class RemoteEntityControllerExtended extends RemoteEntityController {
                             'task_priority'=>0,
                             'local_id'=>$local_entity_id,
                             'local_type'=>$local_entity_type,
-                            'isNode'=>$isNode,
                             'remote_type'=>$remote_type,
-                            'trello_id'=>$trello_id),
+                            'remote_id'=>$remote_id),
                             $e->getResponse()->getMessage());
       }
       else{
-        watchdog('fluxtrello @ '.$operation, $e->getResponse()->getMessage());
+        watchdog('fluxservice @ '.$operation, $e->getResponse()->getMessage());
       }
     }
   }
   /**
-   *  Updates the local fluxtrello table
+   *  Updates the mapping table
    */
-  public function updateLocal(RemoteEntityInterface $remote_entity, $local_entity_id, $local_entity_type, $isNode){
+  public function updateLocal(RemoteEntityInterface $remote_entity, $local_entity_id, $local_entity_type){
     $fields=array('checksum'=>$remote_entity->checksum);
 
-    db_update('fluxtrello')
+    $module_name=explode('_', $remote_entity->entityType())
+
+    db_update($module_name[0])
       ->fields($fields)
       ->condition('id', $local_entity_id, '=')
       ->condition('type', $local_entity_type, '=')
-      ->condition('isNode', $isNode)
       ->execute();
   }
 
@@ -153,11 +153,10 @@ abstract class RemoteEntityControllerExtended extends RemoteEntityController {
   /**
   *   Sends a put request to update a mite data set and if successful updates the local table
   */
-  public function updateRemote($local_entity_id, $local_entity_type, $isNode, $account, $remote_entity){
+  public function updateRemote($local_entity_id, $local_entity_type, $account, $remote_entity){
     $client=$account->client();
 
-    $req=$this->createRequest($client, $remote_entity);
-    unset($req['idBoard']);
+    $req=$this->createRequest($client, 'update', $remote_entity);
 
     //extract mite type
     $type=$remote_entity->entityType();
@@ -179,13 +178,13 @@ abstract class RemoteEntityControllerExtended extends RemoteEntityController {
                             'task_priority'=>1,
                             'local_id'=>$local_entity_id,
                             'local_type'=>$local_entity_type,
-                            'isNode'=>$isNode,
                             'request'=>$req,
-                            'remote_type'=>$remote_entity->entityType()),
+                            'remote_type'=>$remote_entity->entityType(),
+                            'remote_id'=>$remote_entity->id),
                             $e->getResponse()->getMessage());
       }
       else{
-        watchdog('fluxtrello @ '.$operation, $e->getResponse()->getMessage());
+        watchdog('fluxservice @ '.$operation, $e->getResponse()->getMessage());
       }
     }
 
@@ -193,20 +192,15 @@ abstract class RemoteEntityControllerExtended extends RemoteEntityController {
     if(isset($response)){
       //get the new updated-at timestamp
       $operation='get'.ucfirst($type);
-      $response=$client->$operation(array(  'remote_id'=>$remote_entity->trello_id,
+      $response=$client->$operation(array(  'remote_id'=>$remote_entity->remote_id,
                                             'key'=>$client->getConfig('consumer_key'),
                                             'token'=>$client->getConfig('token'),
                                             'fields'=>'all'));
 
-      unset($response['dateLastActivity']);
-      unset($response['dateLastView']);
-
-      $response['checksum']=md5(json_encode($response));
-
       $remoteEntity = fluxservice_entify($response, $remote_entity->entityType(), $account);
 
       //update local database entry
-      $this->updateLocal($remoteEntity, $local_entity_id, $local_entity_type, $isNode);
+      $this->updateLocal($remoteEntity, $local_entity_id, $local_entity_type);
       return $remoteEntity;
     }
   }
@@ -214,7 +208,7 @@ abstract class RemoteEntityControllerExtended extends RemoteEntityController {
     * 
     */
 
-  abstract public function createRequest($client, $remote_entity=null, $remote_id=0);
+  abstract public function createRequest($client, $operation_type, $remote_entity=null, $remote_id=0);
 
   /**
    * 

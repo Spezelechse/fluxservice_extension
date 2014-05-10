@@ -2,9 +2,9 @@
 /**
  * 
  */
- namespace Drupal\fluxservice;
+ namespace Drupal\fluxservice_extension;
 
- use Drupal\fluxservice\FluxserviceQueuedTasks;
+ use Drupal\fluxservice_extension\FluxserviceQueuedTasks;
 
  class FluxserviceTaskQueue {
  	private $entity_type;

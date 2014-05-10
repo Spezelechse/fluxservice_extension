@@ -5,11 +5,9 @@
  * Contains fetchRemoteEntityByLocalEntity.
  */
 
-namespace Drupal\fluxtrello\Plugin\Rules\Action;
+namespace Drupal\fluxservice_extension\Plugin\Rules\Action;
 
-use Drupal\fluxtrello\Plugin\Service\TrelloAccountInterface;
-use Drupal\fluxtrello\Plugin\Entity\TrelloCustomer;
-use Drupal\fluxtrello\Rules\RulesPluginHandlerBase;
+use Drupal\fluxservice_extension\Rules\RulesPluginHandlerBase;
 
 /**
  * update remote entities.
@@ -22,7 +20,7 @@ class fetchRemoteEntityByLocalEntity extends RulesPluginHandlerBase implements \
   public static function getInfo() {
 
     return static::getInfoDefaults() + array(
-      'name' => 'fluxtrello_fetch_remote_entity_by_local_entity',
+      'name' => 'fluxservice_fetch_remote_entity_by_local_entity',
       'label' => t('Fetch remote entity by local entity'),
       'parameter' => array(
         'local_entity' => array(
@@ -30,6 +28,13 @@ class fetchRemoteEntityByLocalEntity extends RulesPluginHandlerBase implements \
           'label' => t('Local entity'),
           'required' => TRUE,
           'wrapped' => TRUE,
+        ),
+        'remote_type' => array(
+          'type' => 'text',
+          'label' => t('Remote entity type'),
+          'options list' => 'rules_entity_action_type_options',
+          'description' => t('Specifies the type of the fetched entity.'),
+          'restriction' => 'input',
         ),
       ),
       'provides' => array(
@@ -43,25 +48,23 @@ class fetchRemoteEntityByLocalEntity extends RulesPluginHandlerBase implements \
   /**
    * Executes the action.
    */
-  public function execute($local_entity) {
+  public function execute($local_entity, $remote_type) {
     $local_type="";
     $local_id=0;
-    $isNode=1;
-    if(method_exists($local_entity, 'entityType')){
-      $local_type=$local_entity->entityType();
-      $local_id=$local_entity->id;
-      $isNode=0;
-    }
-    else{
-      $local_type=$local_entity->type();
-      $local_id=$local_entity->getIdentifier();
+    
+    $local_type=$local_entity->type();
+    $local_id=$local_entity->getIdentifier();
+
+    if(empty($local_id)){
+      $local_id=$local_entity->nid->value();
     }
 
-    $res=db_select('fluxtrello','fm')
+    $module_name=explode('_', $remote_type);
+
+    $res=db_select($module_name[0],'fm')
             ->fields('fm',array('remote_id','remote_type'))
             ->condition('fm.id',$local_id,'=')
             ->condition('fm.type',$local_type,'=')
-            ->condition('fm.isNode',$isNode)
             ->execute()
             ->fetchAssoc();
 

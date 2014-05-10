@@ -5,7 +5,7 @@
  * Contains RulesPluginHandlerBase.
  */
 
-namespace Drupal\fluxservice\Rules;
+namespace Drupal\fluxservice_extension\Rules;
 
 use Drupal\fluxservice\Rules\FluxRulesPluginHandlerBase;
 

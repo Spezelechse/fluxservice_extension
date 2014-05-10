@@ -5,11 +5,10 @@
  * Contains enqueueRemoteAction.
  */
 
-namespace Drupal\fluxtrello\Plugin\Rules\Action;
+namespace Drupal\fluxservice_extension\Plugin\Rules\Action;
 
-use Drupal\fluxtrello\Plugin\Service\TrelloAccountInterface;
-use Drupal\fluxtrello\Rules\RulesPluginHandlerBase;
-use Drupal\fluxtrello\TrelloTaskQueue;
+use Drupal\fluxservice_extension\Rules\RulesPluginHandlerBase;
+use Drupal\fluxservice_extension\FluxserviceTaskQueue;
 
 /**
  * enqueue remote action.
@@ -21,7 +20,7 @@ class enqueueRemoteAction extends RulesPluginHandlerBase implements \RulesAction
    */
   public static function getInfo() {
     return static::getInfoDefaults() + array(
-      'name' => 'fluxtrello_enqueue_remote_action',
+      'name' => 'fluxservice_enqueue_remote_action',
       'label' => t('Enqueue remote action'),
       'parameter' => array(
         'local_entity' => array(
@@ -62,22 +61,18 @@ class enqueueRemoteAction extends RulesPluginHandlerBase implements \RulesAction
   public function execute($local_entity, $remote_type, $task_type, $task_priority) {
     $local_type="";
     $local_id=0;
-    $isNode=1;
-    if(method_exists($local_entity, 'entityType')){
-      $local_type=$local_entity->entityType();
-      $local_id=$local_entity->id;
-      $isNode=0;
-    }
-    else{
-      $local_type=$local_entity->type();
-      $local_id=$local_entity->getIdentifier();
+    
+    $local_type=$local_entity->type();
+    $local_id=$local_entity->getIdentifier();
+
+    if(empty($local_id)){
+      $local_id=$local_entity->nid->value();
     }
 
-    TrelloTaskQueue::addTask(array( 'callback'=>$task_type,
-                                  'task_priority'=>$task_priority,
-                                  'local_id'=>$local_id,
-                                  'local_type'=>$local_type,
-                                  'isNode'=>$isNode,
-                                  'remote_type'=>$remote_type));
+    FluxserviceTaskQueue::addTask(array(  'callback'=>$task_type,
+                                          'task_priority'=>$task_priority,
+                                          'local_id'=>$local_id,
+                                          'local_type'=>$local_type,
+                                          'remote_type'=>$remote_type));
   }
 }

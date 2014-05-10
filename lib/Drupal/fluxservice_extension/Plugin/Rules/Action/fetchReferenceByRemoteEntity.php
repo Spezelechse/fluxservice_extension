@@ -5,15 +5,14 @@
  * Contains fetchReferenceByTrelloId.
  */
 
-namespace Drupal\fluxtrello\Plugin\Rules\Action;
+namespace Drupal\fluxservice_extension\Plugin\Rules\Action;
 
-use Drupal\fluxtrello\Plugin\Service\TrelloAccountInterface;
-use Drupal\fluxtrello\Rules\RulesPluginHandlerBase;
+use Drupal\fluxservice_extension\Rules\RulesPluginHandlerBase;
 
 /**
- * fetch reference by trello id.
+ * fetch reference by service id.
  */
-class fetchReferenceByTrelloId extends RulesPluginHandlerBase implements \RulesActionHandlerInterface {
+class fetchReferenceByRemoteEntity extends RulesPluginHandlerBase implements \RulesActionHandlerInterface {
 
   /**
    * Defines the action.
@@ -21,13 +20,14 @@ class fetchReferenceByTrelloId extends RulesPluginHandlerBase implements \RulesA
   public static function getInfo() {
 
     return static::getInfoDefaults() + array(
-      'name' => 'fluxtrello_fetch_reference_by_trello_id',
-      'label' => t('Fetch reference by trello id'),
+      'name' => 'fluxservice_fetch_reference_by_remote_entity',
+      'label' => t('Fetch reference by remote entity'),
       'parameter' => array(
-        'trello_id' => array(
-          'type' => 'text',
-          'label' => t('Trello id'),
+        'remote_entity' => array(
+          'type' => 'entity',
+          'label' => t('Remote entity'),
           'required' => TRUE,
+          'wrapped' => FALSE,
         ),
         'local_type' => array(
           'type' => 'text',
@@ -35,12 +35,6 @@ class fetchReferenceByTrelloId extends RulesPluginHandlerBase implements \RulesA
           'options list' => 'rules_entity_action_type_options',
           'description' => t('Specifies the type of referenced entity.'),
           'restriction' => 'input',
-        ),
-        'remote_entity' => array(
-          'type' => 'entity',
-          'label' => t('Remote entity'),
-          'required' => TRUE,
-          'wrapped' => FALSE,
         ),
       ),
       'provides' => array(
@@ -54,11 +48,15 @@ class fetchReferenceByTrelloId extends RulesPluginHandlerBase implements \RulesA
   /**
    * Executes the action.
    */
-  public function execute($trello_id, $local_type,$remote_entity) {
-    print_r("<br>fetch reference: ".$trello_id."<br>");
-    $res=db_select('fluxtrello','fm')
-          ->fields('fm',array('id','type','remote_type','trello_id'))
-          ->condition('fm.trello_id',$trello_id,'=')
+  public function execute($remote_entity, $local_type) {
+    print_r("<br>fetch reference: ".$service_id."<br>");
+
+    $remote_type=explode('_', $remote_entity->entityType());
+
+
+    $res=db_select($remote_type[0],'fm')
+          ->fields('fm',array('id','type','remote_type','remote_id'))
+          ->condition('fm.remote_id',$remote_entity->id,'=')
           ->condition('fm.type',$local_type,'=')
           ->execute()
           ->fetchAssoc();
