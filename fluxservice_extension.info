@@ -1,5 +1,5 @@
 name = flux service extension
-description = Extends the fluxservice module with logic for create, update and delete local and remote object, and provides a queue for storing operations
+description = Extends the fluxservice module with logic for creating, updating and deleting local and remote objects, provides a queue for storing operations and later execution, and serveral extended classes for easier usage
 package = fluxkraft
 core = 7.x
 php = 5.3
