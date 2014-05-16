@@ -7,9 +7,8 @@
 
 namespace Drupal\fluxservice_extension;
 
-use Drupal\fluxservice\Entity\FluxEntityInterface;
 use Drupal\fluxservice\RemoteEntityController;
-use Drupal\fluxservice\Entity\RemoteEntityInterface;
+use Drupal\fluxservice_extension\Entity\RemoteEntityExtendedInterface;
 use Guzzle\Http\Exception\BadResponseException;
 
 /**
@@ -19,24 +18,17 @@ abstract class RemoteEntityControllerExtended extends RemoteEntityController {
 /**
  * Creates a new database entry at the mapping table
  */
-  public function createLocal(RemoteEntityInterface $remote_entity, $local_entity_id, $local_entity_type){
-    $fields=array('id', 'type', 'remote_id', 'remote_type', 'remote_id', 'touched_last', 'checksum');
+  public function createLocal(RemoteEntityExtendedInterface $remote_entity, $local_entity_id, $local_entity_type){
+    $fields=array('id', 'type', 'remote_entity_id', 'remote_type', 'remote_id', 'touched_last', 'check');
     $values=array($local_entity_id, 
                   $local_entity_type,
                   $remote_entity->id, 
                   $remote_entity->entityType(), 
                   $remote_entity->remote_id,
                   time(),
-                  $remote_entity->checksum);
+                  $remote_entity->getCheckValue());
 
-    array_push($fields, 'board_id');
-
-    if(isset($remote_entity->idBoard)){
-      array_push($values, $remote_entity->idBoard);
-    }
-    else{
-      array_push($values, $remote_entity->remote_id);
-    }
+    $this->addAdditionalFields($fields, $values, $remote_entity);
 
     $module_name=explode('_', $remote_entity->entityType());
 
@@ -91,8 +83,7 @@ abstract class RemoteEntityControllerExtended extends RemoteEntityController {
     }
 
     if(isset($response)){
-      $response['checksum']=md5(json_encode($response));
-      
+      $response=$this->prepareResponse($response);     
       $remoteEntity = fluxservice_entify($response, $remote_type, $account);
 
       //create local database entry
@@ -137,10 +128,10 @@ abstract class RemoteEntityControllerExtended extends RemoteEntityController {
   /**
    *  Updates the mapping table
    */
-  public function updateLocal(RemoteEntityInterface $remote_entity, $local_entity_id, $local_entity_type){
-    $fields=array('checksum'=>$remote_entity->checksum);
+  public function updateLocal(RemoteEntityExtendedInterface $remote_entity, $local_entity_id, $local_entity_type){
+    $fields=array('check'=>$remote_entity->getCheckValue());
 
-    $module_name=explode('_', $remote_entity->entityType())
+    $module_name=explode('_', $remote_entity->entityType());
 
     db_update($module_name[0])
       ->fields($fields)
@@ -190,12 +181,10 @@ abstract class RemoteEntityControllerExtended extends RemoteEntityController {
 
     //check if successful
     if(isset($response)){
-      //get the new updated-at timestamp
+      //get the new updated dataset
+      $req=$this->createRequest($client, 'get', null, $remote_entity->remote_id);
       $operation='get'.ucfirst($type);
-      $response=$client->$operation(array(  'remote_id'=>$remote_entity->remote_id,
-                                            'key'=>$client->getConfig('consumer_key'),
-                                            'token'=>$client->getConfig('token'),
-                                            'fields'=>'all'));
+      $response=$this->prepareResponse($client->$operation($req));
 
       $remoteEntity = fluxservice_entify($response, $remote_entity->entityType(), $account);
 
@@ -214,4 +203,19 @@ abstract class RemoteEntityControllerExtended extends RemoteEntityController {
    * 
    */
   abstract public function handle404($log_message, $data=array(), $response_message="");
+
+  /**
+   * 
+   */
+  abstract public function extractRemoteType($entity_type);
+
+  /**
+   * 
+   */
+  abstract public function addAdditionalFields(&$fields, &$values, $remote_entity);
+
+  /**
+   * 
+   */
+  abstract public function prepareResponse($response);
 }

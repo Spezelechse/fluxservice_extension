@@ -7,12 +7,12 @@
 
 namespace Drupal\fluxservice_extension\Plugin\Rules\Action;
 
-use Drupal\fluxservice_extension\Rules\RulesPluginHandlerBase;
+use Drupal\fluxservice_extension\Rules\FluxRulesPluginHandlerBaseExtended;
 
 /**
  * update remote entities.
  */
-class fetchRemoteEntityByLocalEntity extends RulesPluginHandlerBase implements \RulesActionHandlerInterface {
+class fetchRemoteEntityByLocalEntity extends FluxRulesPluginHandlerBaseExtended implements \RulesActionHandlerInterface {
 
   /**
    * Defines the action.

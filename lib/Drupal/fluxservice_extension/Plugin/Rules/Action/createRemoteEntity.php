@@ -7,12 +7,12 @@
 
 namespace Drupal\fluxservice_extension\Plugin\Rules\Action;
 
-use Drupal\fluxservice_extension\Rules\RulesPluginHandlerBase;
+use Drupal\fluxservice_extension\Rules\FluxRulesPluginHandlerBaseExtended;
 
 /**
  * create remote entities.
  */
-class createRemoteEntity extends RulesPluginHandlerBase implements \RulesActionHandlerInterface {
+class createRemoteEntity extends FluxRulesPluginHandlerBaseExtended implements \RulesActionHandlerInterface {
 
   /**
    * Defines the action.
@@ -22,8 +22,7 @@ class createRemoteEntity extends RulesPluginHandlerBase implements \RulesActionH
     return static::getInfoDefaults() + array(
       'name' => 'fluxservice_create_remote_entity',
       'label' => t('Create remote entity'),
-      'parameter' => array(
-        'account' => static::getServiceParameterInfo(),
+      'parameter' => static::getServiceParameterInfo()+array(
         'remote_entity' => array(
           'type' => 'entity',
           'label' => t('Remote: Entity'),
@@ -37,6 +36,8 @@ class createRemoteEntity extends RulesPluginHandlerBase implements \RulesActionH
           'required' => TRUE,
         ),
       ),
+      'callbacks' => static::getServiceCallbacks()+array(
+      ),
       'provides' => array(
         'created_entity' => array(
           'type'=>'entity',
@@ -48,7 +49,7 @@ class createRemoteEntity extends RulesPluginHandlerBase implements \RulesActionH
   /**
    * Executes the action.
    */
-  public function execute($account, $remote_entity, $local_entity) {
+  public function execute($bundle, $account, $remote_entity, $local_entity) {
     dpm('create remote service');
     print_r('create remote service<br>');
     
@@ -63,7 +64,6 @@ class createRemoteEntity extends RulesPluginHandlerBase implements \RulesActionH
     }
 
     $controller = entity_get_controller($remote_entity->entityType());
-    
     $created = $controller->createRemote($local_id, $local_type, $account, $remote_entity);
 
     return array('created_entity'=>entity_metadata_wrapper($remote_entity->entityType(),$created));

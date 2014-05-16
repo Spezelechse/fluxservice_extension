@@ -7,12 +7,12 @@
 
 namespace Drupal\fluxservice_extension\Plugin\Rules\Action;
 
-use Drupal\fluxservice_extension\Rules\RulesPluginHandlerBase;
+use Drupal\fluxservice_extension\Rules\FluxRulesPluginHandlerBaseExtended;
 
 /**
  * update remote entities.
  */
-class updateRemoteEntity extends RulesPluginHandlerBase implements \RulesActionHandlerInterface {
+class updateRemoteEntity extends FluxRulesPluginHandlerBaseExtended implements \RulesActionHandlerInterface {
 
   /**
    * Defines the action.
@@ -22,8 +22,7 @@ class updateRemoteEntity extends RulesPluginHandlerBase implements \RulesActionH
     return static::getInfoDefaults() + array(
       'name' => 'fluxservice_update_remote_entity',
       'label' => t('Update remote entity'),
-      'parameter' => array(
-        'account' => static::getServiceParameterInfo(),
+      'parameter' => static::getServiceParameterInfo()+array(
         'remote_entity' => array(
           'type' => 'entity',
           'label' => t('Remote: Entity'),
@@ -36,6 +35,8 @@ class updateRemoteEntity extends RulesPluginHandlerBase implements \RulesActionH
           'wrapped' => TRUE,
           'required' => TRUE,
         ),
+      ),
+      'callbacks' => static::getServiceCallbacks()+array(
       ),
       'provides' => array(
         'updated_entity' => array(

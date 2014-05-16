@@ -27,6 +27,7 @@ abstract class RepetitiveTaskHandlerBaseExtended extends RepetitiveTaskHandlerBa
 
     $this->task['module_name']=$module;
     $this->task['entity_type']=$type;
+    $this->task['remote_type']=$type;
   }
   /**
    * Gets the configured event name to dispatch.
@@ -40,6 +41,13 @@ abstract class RepetitiveTaskHandlerBaseExtended extends RepetitiveTaskHandlerBa
    */
   public function getEntityType(){
     return $this->task['entity_type'];
+  }
+
+  /**
+   * 
+   */
+  public function getRemoteType(){
+    return $this->task['remote_type'];
   }
 
   /**
@@ -186,9 +194,6 @@ abstract class RepetitiveTaskHandlerBaseExtended extends RepetitiveTaskHandlerBa
 /**
  * invoke events for all given entities
  * 
- * @param string $entity_type
- * A string defining the entity type
- * 
  * @param array $entities
  * An array of arrays defining the entities
  * 
@@ -201,9 +206,11 @@ abstract class RepetitiveTaskHandlerBaseExtended extends RepetitiveTaskHandlerBa
  * @param array $local_entity_ids
  * if needed the local entity ids which refer to the remote entities
  */
-  public function invokeEvent($entity_type, $entities, $account, $change_type, $local_entity_ids=array()){
+  public function invokeEvent($entities, $change_type, $local_entity_ids=array()){
+    $account = $this->getAccount();
+
     if(!empty($entities)){
-      $entities = fluxservice_entify_multiple($entities, $entity_type, $account);
+      $entities = fluxservice_entify_multiple($entities, $this->getModuleName().'_'.$this->getEntityType(), $account);
 
       $i=0;
       if($entities){
@@ -224,8 +231,6 @@ abstract class RepetitiveTaskHandlerBaseExtended extends RepetitiveTaskHandlerBa
  * Checks for remote "updates" (create,update,delete) and invoke the appropriate events
  */
   public function checkAndInvoke(){
-    $account = $this->getAccount();
-
     $data_sets=$this->getRemoteDatasets();
 
     if(!empty($data_sets)){
@@ -238,7 +243,7 @@ abstract class RepetitiveTaskHandlerBaseExtended extends RepetitiveTaskHandlerBa
 
       $last_check=db_select($this->getModuleName(),'fm')
                     ->fields('fm',array('touched_last'))
-                    ->condition('fm.remote_type',$this->task['module_name'].'_'.$this->task['entity_type'],'=')
+                    ->condition('fm.remote_type',$this->getModuleName().'_'.$this->getEntityType(),'=')
                     ->orderBy('fm.touched_last','DESC')
                     ->execute()
                     ->fetch();
@@ -251,31 +256,29 @@ abstract class RepetitiveTaskHandlerBaseExtended extends RepetitiveTaskHandlerBa
       }
 
       foreach ($data_sets as $data_set) {
-        if($data_set['name']!="Selbstentwicklungsraum"){
-          $this->checkSingleResponseSet($data_set,$create,$update,$update_local_ids);
-        }
+        $this->checkSingleResponseSet($data_set,$create,$update,$update_local_ids);
       }
 
       //get deleted id's
-      $res=db_select($this->task['module_name'],'fm')
+      $res=db_select($this->getModuleName(),'fm')
               ->fields('fm',array('id','remote_id','touched_last'))
               ->condition('fm.touched_last',$last_check,'<=')
-              ->condition('fm.remote_type',$this->task['module_name'].'_'.$this->task['entity_type'],'=')
+              ->condition('fm.remote_type',$this->getModuleName().'_'.$this->getEntityType(),'=')
               ->execute();
 
       foreach($res as $data){
         //print_r('delete local: '.$data->touched_last.'<br>');
         array_push($delete_local_ids, $data->id);
         array_push($delete, array('id'=>$data->remote_id));
-        db_delete($this->task['module_name'])
+        db_delete($this->getModuleName())
           ->condition('id',$data->id, '=')
-          ->condition('remote_type',$this->task['module_name'].'_'.$this->task['entity_type'],'=')
+          ->condition('remote_type',$this->getModuleName().'_'.$this->getEntityType(),'=')
           ->execute();
       }
 
-      $this->invokeEvent($this->task['module_name'].'_'.$this->task['entity_type'], $create, $account, 'create');
-      $this->invokeEvent($this->task['module_name'].'_'.$this->task['entity_type'], $update, $account, 'update', $update_local_ids);
-      $this->invokeEvent($this->task['module_name'].'_'.$this->task['entity_type'], $delete, $account, 'delete', $delete_local_ids);
+      $this->invokeEvent($create, 'create');
+      $this->invokeEvent($update, 'update', $update_local_ids);
+      $this->invokeEvent($delete, 'delete', $delete_local_ids);
     }     
   }
 
@@ -283,27 +286,21 @@ abstract class RepetitiveTaskHandlerBaseExtended extends RepetitiveTaskHandlerBa
  * checks which event is needed for the given remote data_set
  */
   private function checkSingleResponseSet($data_set, &$create, &$update, &$update_local_ids){
-    $res=db_select($this->task['module_name'],'fm')
-          ->fields('fm',array('checksum','id'))
+    $res=db_select($this->getModuleName(),'fm')
+          ->fields('fm',array('checkvalue','id'))
           ->condition('remote_id',$data_set['id'])
           ->execute()
           ->fetchAssoc();
 
-    unset($data_set['dateLastActivity']);
-    unset($data_set['dateLastView']);
-
-    $checksum=md5(json_encode($data_set));
-    $data_set['checksum']=$checksum;
-
     if($res){
       //check for updates
 
-      if($res['checksum']!=$checksum){
+      if($res['checkvalue']!=$this->getCheckvalue($data_set)){
         array_push($update, $data_set);
         array_push($update_local_ids, $res['id']);
       }
 
-      db_update($this->task['module_name'])
+      db_update($this->getModuleName())
         ->fields(array('touched_last'=>time()))
         ->condition('id',$res['id'],'=')
         ->execute();
@@ -351,4 +348,9 @@ abstract class RepetitiveTaskHandlerBaseExtended extends RepetitiveTaskHandlerBa
    * @return array (entry id => array (property name => value))
    */
   abstract protected function getRemoteDatasets();
+
+  /**
+   * 
+   */
+  abstract protected function getCheckvalue($data_set);
 }

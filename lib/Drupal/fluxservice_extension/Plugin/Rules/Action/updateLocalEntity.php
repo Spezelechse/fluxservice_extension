@@ -7,12 +7,12 @@
 
 namespace Drupal\fluxservice_extension\Plugin\Rules\Action;
 
-use Drupal\fluxservice_extension\Rules\RulesPluginHandlerBase;
+use Drupal\fluxservice_extension\Rules\FluxRulesPluginHandlerBaseExtended;
 
 /**
  * Send a customer action.
  */
-class updateLocalEntity extends RulesPluginHandlerBase implements \RulesActionHandlerInterface {
+class updateLocalEntity extends FluxRulesPluginHandlerBaseExtended implements \RulesActionHandlerInterface {
 
   /**
    * Defines the action.
@@ -23,7 +23,6 @@ class updateLocalEntity extends RulesPluginHandlerBase implements \RulesActionHa
       'name' => 'fluxservice_update_local_entity',
       'label' => t('Update local entity'),
       'parameter' => array(
-        'account' => static::getServiceParameterInfo(),
         'remote_entity' => array(
           'type' => 'entity',
           'label' => t('Remote: Entity'),

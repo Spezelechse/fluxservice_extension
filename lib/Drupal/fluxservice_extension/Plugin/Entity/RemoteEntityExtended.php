@@ -12,7 +12,7 @@ use Drupal\fluxservice\Entity\RemoteEntity;
 /**
  * Abstract class for remote entities.
  */
-abtract class RemoteEntityExtended extends RemoteEntity implements RemoteEntityExtendedInterface {
+abstract class RemoteEntityExtended extends RemoteEntity implements RemoteEntityExtendedInterface {
 
   public function __construct(array $values = array(), $entity_type = NULL) {
     parent::__construct($values, $entity_type);
@@ -30,4 +30,6 @@ abtract class RemoteEntityExtended extends RemoteEntity implements RemoteEntityE
     );
     return $info;
   }
+
+  abstract public function getCheckValue();
 }

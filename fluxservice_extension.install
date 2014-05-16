@@ -1,6 +1,6 @@
   <?php
 
-  function fluxtrello_schema(){
+  function fluxservice_extension_schema(){
     $schema=array();
     $schema['fluxservice_queue'] = array(
       'description' => 'Fluxservice queue: if a service is unavailable the operations are stored here for later execution',

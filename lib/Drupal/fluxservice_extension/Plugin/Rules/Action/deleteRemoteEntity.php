@@ -7,12 +7,12 @@
 
 namespace Drupal\fluxservice_extension\Plugin\Rules\Action;
 
-use Drupal\fluxservice_extension\Rules\RulesPluginHandlerBase;
+use Drupal\fluxservice_extension\Rules\FluxRulesPluginHandlerBaseExtended;
 
 /**
  * delete remote entities.
  */
-class deleteRemoteEntity extends RulesPluginHandlerBase implements \RulesActionHandlerInterface {
+class deleteRemoteEntity extends FluxRulesPluginHandlerBaseExtended implements \RulesActionHandlerInterface {
 
   /**
    * Defines the action.
@@ -22,14 +22,15 @@ class deleteRemoteEntity extends RulesPluginHandlerBase implements \RulesActionH
     return static::getInfoDefaults() + array(
       'name' => 'fluxservice_delete_remote_entity',
       'label' => t('Delete remote entity'),
-      'parameter' => array(
-        'account' => static::getServiceParameterInfo(),
+      'parameter' => static::getServiceParameterInfo()+array(
         'local_entity' => array(
           'type' => 'entity',
           'label' => t('Local: Entity'),
           'required' => TRUE,
           'wrapped' => TRUE,
         ),
+      ),
+      'callbacks' => static::getServiceCallbacks()+array(
       ),
     );
   }

@@ -7,13 +7,13 @@
 
 namespace Drupal\fluxservice_extension\Plugin\Rules\Action;
 
-use Drupal\fluxservice_extension\Rules\RulesPluginHandlerBase;
+use Drupal\fluxservice_extension\Rules\FluxRulesPluginHandlerBaseExtended;
 use Drupal\fluxservice_extension\FluxserviceTaskQueue;
 
 /**
  * enqueue remote action.
  */
-class enqueueRemoteAction extends RulesPluginHandlerBase implements \RulesActionHandlerInterface {
+class enqueueRemoteAction extends FluxRulesPluginHandlerBaseExtended implements \RulesActionHandlerInterface {
 
   /**
    * Defines the action.

@@ -7,12 +7,12 @@
 
 namespace Drupal\fluxservice_extension\Plugin\Rules\Action;
 
-use Drupal\fluxservice_extension\Rules\RulesPluginHandlerBase;
+use Drupal\fluxservice_extension\Rules\FluxRulesPluginHandlerBaseExtended;
 
 /**
  * Create local entiy.
  */
-class createLocalEntity extends RulesPluginHandlerBase implements \RulesActionHandlerInterface {
+class createLocalEntity extends FluxRulesPluginHandlerBaseExtended implements \RulesActionHandlerInterface {
 
   /**
    * Defines the action.
@@ -23,7 +23,6 @@ class createLocalEntity extends RulesPluginHandlerBase implements \RulesActionHa
       'name' => 'fluxservice_create_local_entity',
       'label' => t('Create local entity'),
       'parameter' => array(
-        'account' => static::getServiceParameterInfo(),
         'remote_entity' => array(
           'type' => 'entity',
           'label' => t('Remote: Entity'),
@@ -37,13 +36,15 @@ class createLocalEntity extends RulesPluginHandlerBase implements \RulesActionHa
           'required' => TRUE,
         ),
       ),
+      'callbacks' => static::getServiceCallbacks()+array(
+      ),
     );
   }
 
   /**
    * Executes the action.
    */
-  public function execute($account, $remote_entity, $local_entity) {
+  public function execute($bundle, $account, $remote_entity, $local_entity) {
     print_r('create local<br>');
     dpm('create local');
     
