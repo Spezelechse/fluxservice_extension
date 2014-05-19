@@ -1,4 +1,6 @@
 <?php
+use Drupal\fluxservice_extension\FluxserviceQueuedTasks;
+
 /**
  * @file
  * Main module file.
@@ -28,7 +30,7 @@ function fluxservice_extension_fluxservice_plugin_directory() {
  * 
  */
 function fluxservice_extension_task_type_get_options(){
-	return FluxServiceQueuedTasks::getOptions();
+	return FluxserviceQueuedTasks::getOptions();
 }
 
 /**

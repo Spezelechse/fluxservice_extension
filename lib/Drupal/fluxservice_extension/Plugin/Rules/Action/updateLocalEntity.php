@@ -42,9 +42,9 @@ class updateLocalEntity extends FluxRulesPluginHandlerBaseExtended implements \R
   /**
    * Executes the action.
    */
-  public function execute($account, $remote_entity, $local_entity) {
-    print_r("update local service<br>");
-    dpm("update local service");
+  public function execute($remote_entity, $local_entity) {
+    print_r("update local<br>");
+    dpm("update local");
 
     $local_type="";
     $local_id=0;

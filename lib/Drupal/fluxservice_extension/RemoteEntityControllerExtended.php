@@ -18,8 +18,8 @@ abstract class RemoteEntityControllerExtended extends RemoteEntityController {
 /**
  * Creates a new database entry at the mapping table
  */
-  public function createLocal(RemoteEntityExtendedInterface $remote_entity, $local_entity_id, $local_entity_type){
-    $fields=array('id', 'type', 'remote_entity_id', 'remote_type', 'remote_id', 'touched_last', 'check');
+  public function createLocal($remote_entity, $local_entity_id, $local_entity_type){
+    $fields=array('id', 'type', 'remote_entity_id', 'remote_type', 'remote_id', 'touched_last', 'checkvalue');
     $values=array($local_entity_id, 
                   $local_entity_type,
                   $remote_entity->id, 
@@ -83,7 +83,8 @@ abstract class RemoteEntityControllerExtended extends RemoteEntityController {
     }
 
     if(isset($response)){
-      $response=$this->prepareResponse($response);     
+      $response=$this->prepareResponse($response); 
+
       $remoteEntity = fluxservice_entify($response, $remote_type, $account);
 
       //create local database entry
@@ -128,8 +129,8 @@ abstract class RemoteEntityControllerExtended extends RemoteEntityController {
   /**
    *  Updates the mapping table
    */
-  public function updateLocal(RemoteEntityExtendedInterface $remote_entity, $local_entity_id, $local_entity_type){
-    $fields=array('check'=>$remote_entity->getCheckValue());
+  public function updateLocal($remote_entity, $local_entity_id, $local_entity_type){
+    $fields=array('checkvalue'=>$remote_entity->getCheckValue());
 
     $module_name=explode('_', $remote_entity->entityType());
 

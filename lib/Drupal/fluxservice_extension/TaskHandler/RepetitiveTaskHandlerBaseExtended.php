@@ -211,16 +211,16 @@ abstract class RepetitiveTaskHandlerBaseExtended extends RepetitiveTaskHandlerBa
 
     if(!empty($entities)){
       $entities = fluxservice_entify_multiple($entities, $this->getModuleName().'_'.$this->getEntityType(), $account);
-
+      
       $i=0;
       if($entities){
         foreach ($entities as $entity) {
           if(!empty($local_entity_ids)){
             $local_entity_id=$local_entity_ids[$i++];
-            rules_invoke_event($this->getEvent(), $account, $entity, $change_type, $local_entity_id);
+            rules_invoke_event($this->getEvent(), $this->getModuleName(), $account, $change_type, $local_entity_id, $entity);
           }
           else{
-            rules_invoke_event($this->getEvent(), $account, $entity, $change_type); 
+            rules_invoke_event($this->getEvent(), $this->getModuleName(), $account, $change_type, 0, $entity); 
           }
         }
       }

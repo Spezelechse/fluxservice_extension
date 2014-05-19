@@ -38,14 +38,14 @@ class enqueueRemoteAction extends FluxRulesPluginHandlerBaseExtended implements 
         ),
         'task_type' => array(
           'type' => 'text',
-          'options list' => 'task_type_get_options',
+          'options list' => 'fluxservice_extension_task_type_get_options',
           'label' => t('Task type'),
           'restriction' => 'input',
           'required' => TRUE,
         ),
         'task_priority' => array(
           'type' => 'text',
-          'options list' => 'task_priority_get_options',
+          'options list' => 'fluxservice_extension_task_priority_get_options',
           'label' => t('Task priority'),
           'description' => t('standard: create=2, update=1, delete=0; Queue is ordered descending by priority.'),
           'restriction' => 'input',

@@ -62,14 +62,14 @@ class fetchRemoteEntityByLocalEntity extends FluxRulesPluginHandlerBaseExtended 
     $module_name=explode('_', $remote_type);
 
     $res=db_select($module_name[0],'fm')
-            ->fields('fm',array('remote_id','remote_type'))
+            ->fields('fm',array('remote_entity_id','remote_type'))
             ->condition('fm.id',$local_id,'=')
             ->condition('fm.type',$local_type,'=')
             ->execute()
             ->fetchAssoc();
 
     if($res){
-      if(!$remote_entity=entity_load_single($res['remote_type'], $res['remote_id'])){
+      if(!$remote_entity=entity_load_single($res['remote_type'], $res['remote_entity_id'])){
         $remote_entity=$local_entity;
         $res['remote_type']=$local_type;
       }

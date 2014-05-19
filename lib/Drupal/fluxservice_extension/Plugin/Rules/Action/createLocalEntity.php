@@ -36,15 +36,13 @@ class createLocalEntity extends FluxRulesPluginHandlerBaseExtended implements \R
           'required' => TRUE,
         ),
       ),
-      'callbacks' => static::getServiceCallbacks()+array(
-      ),
     );
   }
 
   /**
    * Executes the action.
    */
-  public function execute($bundle, $account, $remote_entity, $local_entity) {
+  public function execute($remote_entity, $local_entity) {
     print_r('create local<br>');
     dpm('create local');
     
@@ -55,7 +53,12 @@ class createLocalEntity extends FluxRulesPluginHandlerBaseExtended implements \R
     $local_id=$local_entity->getIdentifier();
 
     if(empty($local_id)){
-      $local_id=$local_entity->nid->value();
+      if(isset($local_entity->id)){
+        $local_id=$local_entity->id->value();
+      }
+      else if(isset($local_entity->nid)){
+        $local_id=$local_entity->nid->value();
+      }
     }
   
     $controller = entity_get_controller($remote_entity->entityType());

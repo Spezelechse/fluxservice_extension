@@ -20,9 +20,15 @@ class fetchReferenceByRemoteEntity extends FluxRulesPluginHandlerBaseExtended im
   public static function getInfo() {
 
     return static::getInfoDefaults() + array(
-      'name' => 'fluxservice_fetch_reference_by_remote_entity',
-      'label' => t('Fetch reference by remote entity'),
+      'name' => 'fluxservice_fetch_reference_by_remote_id',
+      'label' => t('Fetch reference by remote id'),
       'parameter' => array(
+        'remote_id' => array(
+          'type' => '*',
+          'label' => t('Remote entity id'),
+          'required' => TRUE,
+          'wrapped' => FALSE,
+        ),
         'remote_entity' => array(
           'type' => 'entity',
           'label' => t('Remote entity'),
@@ -48,15 +54,15 @@ class fetchReferenceByRemoteEntity extends FluxRulesPluginHandlerBaseExtended im
   /**
    * Executes the action.
    */
-  public function execute($remote_entity, $local_type) {
-    print_r("<br>fetch reference: ".$service_id."<br>");
+  public function execute($remote_id, $remote_entity, $local_type) {
+    print_r("<br>fetch reference: ".$remote_id."<br>");
 
     $remote_type=explode('_', $remote_entity->entityType());
 
 
     $res=db_select($remote_type[0],'fm')
           ->fields('fm',array('id','type','remote_type','remote_id'))
-          ->condition('fm.remote_id',$remote_entity->id,'=')
+          ->condition('fm.remote_id',$remote_id,'=')
           ->condition('fm.type',$local_type,'=')
           ->execute()
           ->fetchAssoc();

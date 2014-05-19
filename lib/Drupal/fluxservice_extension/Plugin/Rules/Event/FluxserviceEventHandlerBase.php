@@ -31,6 +31,17 @@ abstract class FluxserviceEventHandlerBase extends CronEventHandlerBase {
         'label' => t('Service account'),
         'description' => t('The fluxservice account which this shall be executed.'),
       ),
+      'change_type' => array(
+        'type' => 'text',
+        'options list' => 'fluxservice_extension_change_type_get_options',
+        'label' => t('Change type'),
+        'restiction' => 'input',
+      ),
+      'local_entity_id' => array(
+        'type' => 'integer',
+        'label' => t('Local entity id'),
+        'optional' => TRUE,
+      ),
     );
   }
  

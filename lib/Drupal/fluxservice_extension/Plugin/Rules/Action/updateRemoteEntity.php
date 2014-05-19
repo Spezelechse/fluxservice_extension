@@ -49,9 +49,9 @@ class updateRemoteEntity extends FluxRulesPluginHandlerBaseExtended implements \
   /**
    * Executes the action.
    */
-  public function execute($account, $remote_entity, $local_entity) {
-    dpm('update remote service');
-    print_r('update remote service<br>');
+  public function execute($bundle, $account, $remote_entity, $local_entity) {
+    dpm('update remote');
+    print_r('update remote<br>');
 
     $local_type="";
     $local_id=0;
