@@ -262,12 +262,12 @@ abstract class RepetitiveTaskHandlerBaseExtended extends RepetitiveTaskHandlerBa
       //get deleted id's
       $res=db_select($this->getModuleName(),'fm')
               ->fields('fm',array('id','remote_id','touched_last'))
-              ->condition('fm.touched_last',$last_check,'<=')
+              ->condition('fm.touched_last',$last_check,'<')
               ->condition('fm.remote_type',$this->getModuleName().'_'.$this->getEntityType(),'=')
               ->execute();
 
       foreach($res as $data){
-        //print_r('delete local: '.$data->touched_last.'<br>');
+        //print_r('delete local: '.$data->id.'<br>');
         array_push($delete_local_ids, $data->id);
         array_push($delete, array('id'=>$data->remote_id));
         db_delete($this->getModuleName())
@@ -303,6 +303,7 @@ abstract class RepetitiveTaskHandlerBaseExtended extends RepetitiveTaskHandlerBa
       db_update($this->getModuleName())
         ->fields(array('touched_last'=>time()))
         ->condition('id',$res['id'],'=')
+        ->condition('remote_type', $this->getModuleName().'_'.$this->getEntityType(),'=')
         ->execute();
     }
     else{

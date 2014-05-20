@@ -39,7 +39,7 @@ class deleteRemoteEntity extends FluxRulesPluginHandlerBaseExtended implements \
    * Executes the action.
    */
   public function execute($bundle, $account, $local_entity) {
-    dpm('delete remote service');
+//    dpm('delete remote');
 
     $local_type="";
     $local_id=0;
@@ -59,7 +59,6 @@ class deleteRemoteEntity extends FluxRulesPluginHandlerBaseExtended implements \
             ->fetchAssoc();
 
     if($res){
-      dpm("delete");
       $controller = entity_get_controller($res['remote_type']);
     
       $controller->deleteRemote($local_id, $local_type, $account, $res['remote_type'], $res['remote_id']);

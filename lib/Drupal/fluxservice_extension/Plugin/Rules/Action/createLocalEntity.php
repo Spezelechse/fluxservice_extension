@@ -43,8 +43,8 @@ class createLocalEntity extends FluxRulesPluginHandlerBaseExtended implements \R
    * Executes the action.
    */
   public function execute($remote_entity, $local_entity) {
-    print_r('create local<br>');
-    dpm('create local');
+  //  print_r('create local<br>');
+//    dpm('create local');
     
     $local_type="";
     $local_id=0;

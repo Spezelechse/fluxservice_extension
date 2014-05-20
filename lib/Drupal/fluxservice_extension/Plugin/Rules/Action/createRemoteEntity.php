@@ -50,9 +50,8 @@ class createRemoteEntity extends FluxRulesPluginHandlerBaseExtended implements \
    * Executes the action.
    */
   public function execute($bundle, $account, $remote_entity, $local_entity) {
-    dpm('create remote');
-    print_r('create remote<br>');
-    print_r($remote_entity);
+//    dpm('create remote');
+  //  print_r('create remote<br>');
     
     $local_type="";
     $local_id=0;

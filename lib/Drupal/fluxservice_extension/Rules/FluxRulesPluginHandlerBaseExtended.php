@@ -33,7 +33,13 @@ abstract class FluxRulesPluginHandlerBaseExtended extends FluxRulesPluginHandler
     if($bundle==''){
       $account_types=fluxservice_extension_service_account_get_options();
       $bundle=array_keys($account_types);
-      $bundle=$bundle[0];
+      
+      if(isset($bundle[0])){
+        $bundle=$bundle[0];
+      }
+      else{
+        $bundle='fluxservice';
+      }
 
       $param['bundle'] = array(
               'type' => 'text',

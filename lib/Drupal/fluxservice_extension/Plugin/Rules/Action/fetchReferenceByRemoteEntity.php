@@ -55,7 +55,7 @@ class fetchReferenceByRemoteEntity extends FluxRulesPluginHandlerBaseExtended im
    * Executes the action.
    */
   public function execute($remote_id, $remote_entity, $local_type) {
-    print_r("<br>fetch reference: ".$remote_id."<br>");
+//    print_r("<br>fetch reference: ".$remote_id."<br>");
 
     $remote_type=explode('_', $remote_entity->entityType());
 
