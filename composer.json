@@ -1,5 +1,5 @@
 {
-  "name": "drupal/fluxtrello",
+  "name": "drupal/fluxservice_extension",
   "type": "drupal-module",
   "description": "Provides integration for the Trello API.",
   "homepage": "",
