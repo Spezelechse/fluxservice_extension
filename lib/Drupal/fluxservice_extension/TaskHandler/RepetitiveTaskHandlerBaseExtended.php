@@ -94,10 +94,10 @@ abstract class RepetitiveTaskHandlerBaseExtended extends RepetitiveTaskHandlerBa
   /**
    *
    */
-  public function checkRequirements(){
+  public function checkDependencies(){
     $service = $this->getAccount()->getService();
 
-    if(!$service->remoteDependenciesAreUsed()){
+    if(!$service->remoteDependenciesAreUsed()||count($needed_types)==0){
       return true;
     }
 
@@ -309,29 +309,6 @@ abstract class RepetitiveTaskHandlerBaseExtended extends RepetitiveTaskHandlerBa
     else{
       array_push($create, $data_set);
     }
-  }
-
-  protected function init(){
-    $board_ids=array();
-    $client = $this->getAccount()->client();
-
-    try{
-      $board_ids = $client->getMemberBoards(array( 'username'=>$client->getConfig('username'),
-                                                    'key'=>$client->getConfig('consumer_key'),
-                                                    'token'=>$client->getConfig('token'),
-                                                    'fields'=>''));
-    }
-    catch(BadResponseException $e){
-      if($e->getResponse()->getStatusCode()==404){
-        watchdog('Fluxservice','[404] Host "'.$client->getBaseUrl().'" not found ('.$operation.')');
-      }
-      else{ 
-          watchdog('Fluxservice @ getMemberBoards', $e->getResponse()->getMessage());
-      }
-    }
-
-
-    return $board_ids;
   }
 
   /**
