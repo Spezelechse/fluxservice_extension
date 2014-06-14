@@ -52,10 +52,8 @@ abstract class RemoteEntityControllerExtended extends RemoteEntityController {
       //TODO: throw error missing argument
     }
 
-    //extract remote object type
-    $type=$remote_type;
-    $type_split=explode("_",$type);
-    $type=$type_split[1];
+    //extract remote type
+    $type=$this->extractRemoteType($remote_type);
 
 
     //build operation name
@@ -73,7 +71,7 @@ abstract class RemoteEntityControllerExtended extends RemoteEntityController {
                             'task_priority'=>2,
                             'local_id'=>$local_entity_id,
                             'local_type'=>$local_entity_type,
-                            'request'=>$req,
+                            'request'=>json_encode($req),
                             'remote_type'=>$remote_type),
                             $e->getResponse()->getMessage());
       }
@@ -98,12 +96,11 @@ abstract class RemoteEntityControllerExtended extends RemoteEntityController {
 
     $req=$this->createRequest($client, 'delete', null, $remote_id);
     
-    $type_split=explode("_",$remote_type);
-    $type=$type_split[1];
-      
+    //extract remote type
+    $type=$this->extractRemoteType($remote_type);
+
     //build operation name
     $operation='delete'.ucfirst($type);
-    $continue=false;
 
     //try to send delete request
     try{
@@ -111,7 +108,7 @@ abstract class RemoteEntityControllerExtended extends RemoteEntityController {
     }
     catch(BadResponseException $e){
       if($e->getResponse()->getStatusCode()==404){
-        $continue=$this->handle404( '[404] Host "'.$account->client()->getBaseUrl().'" not found ('.$operation.')',
+        $this->handle404( '[404] Host "'.$account->client()->getBaseUrl().'" not found ('.$operation.')',
                           array(
                             'callback'=>'delete',
                             'task_priority'=>0,
@@ -150,10 +147,8 @@ abstract class RemoteEntityControllerExtended extends RemoteEntityController {
 
     $req=$this->createRequest($client, 'update', $remote_entity);
 
-    //extract mite type
-    $type=$remote_entity->entityType();
-    $type_split=explode("_",$type);
-    $type=$type_split[1];
+    //extract remote type
+    $type=$this->extractRemoteType($remote_entity->entityType());
 
     //build operation name
     $operation='put'.ucfirst($type);
@@ -170,7 +165,7 @@ abstract class RemoteEntityControllerExtended extends RemoteEntityController {
                             'task_priority'=>1,
                             'local_id'=>$local_entity_id,
                             'local_type'=>$local_entity_type,
-                            'request'=>$req,
+                            'request'=>json_encode($req),
                             'remote_type'=>$remote_entity->entityType(),
                             'remote_id'=>$remote_entity->id),
                             $e->getResponse()->getMessage());
@@ -194,21 +189,21 @@ abstract class RemoteEntityControllerExtended extends RemoteEntityController {
       return $remoteEntity;
     }
   }
+
   /**
     * 
     */
+  public function extractRemoteType($entity_type);
 
+  /**
+    * 
+    */
   abstract public function createRequest($client, $operation_type, $remote_entity=null, $remote_id=0);
 
   /**
    * 
    */
   abstract public function handle404($log_message, $data=array(), $response_message="");
-
-  /**
-   * 
-   */
-  abstract public function extractRemoteType($entity_type);
 
   /**
    * 

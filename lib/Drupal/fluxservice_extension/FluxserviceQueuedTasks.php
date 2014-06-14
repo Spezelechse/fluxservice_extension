@@ -20,7 +20,7 @@ class FluxserviceQueuedTasks{
                                           $task->local_type,
                                           $account,
                                           null,
-                                          $task->request,
+                                          json_decode($task->request),
                                           $task->remote_type);
         if(isset($remote)){
         	$res=db_select('rules_trigger','rs')

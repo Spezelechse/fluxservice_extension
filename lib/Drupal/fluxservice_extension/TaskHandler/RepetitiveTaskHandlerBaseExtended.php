@@ -152,7 +152,7 @@ abstract class RepetitiveTaskHandlerBaseExtended extends RepetitiveTaskHandlerBa
   /**
    * 
    */
-  public function afterTaskComplete(){
+  public function adjustExecutionOrder(){
     $service = $this->getAccount()->getService();
 
     $data=$this->getScheduleData();
@@ -231,6 +231,7 @@ abstract class RepetitiveTaskHandlerBaseExtended extends RepetitiveTaskHandlerBa
  * Checks for remote "updates" (create,update,delete) and invoke the appropriate events
  */
   public function checkAndInvoke(){
+    $this->processQueue();
     $data_sets=$this->getRemoteDatasets();
 
     if(!empty($data_sets)){
