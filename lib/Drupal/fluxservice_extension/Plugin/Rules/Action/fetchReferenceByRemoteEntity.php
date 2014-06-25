@@ -31,7 +31,7 @@ class fetchReferenceByRemoteEntity extends FluxRulesPluginHandlerBaseExtended im
         ),
         'remote_entity' => array(
           'type' => 'entity',
-          'label' => t('Remote entity'),
+          'label' => t('Remote entity which contains the id'),
           'required' => TRUE,
           'wrapped' => FALSE,
         ),
@@ -57,10 +57,10 @@ class fetchReferenceByRemoteEntity extends FluxRulesPluginHandlerBaseExtended im
   public function execute($remote_id, $remote_entity, $local_type) {
 //    print_r("<br>fetch reference: ".$remote_id."<br>");
 
-    $remote_type=explode('_', $remote_entity->entityType());
+    $module_name=explode('_', $remote_entity->entityType());
 
 
-    $res=db_select($remote_type[0],'fm')
+    $res=db_select($module_name[0],'fm')
           ->fields('fm',array('id','type','remote_type','remote_id'))
           ->condition('fm.remote_id',$remote_id,'=')
           ->condition('fm.type',$local_type,'=')

@@ -193,7 +193,7 @@ abstract class RemoteEntityControllerExtended extends RemoteEntityController {
   /**
     * 
     */
-  public function extractRemoteType($entity_type);
+  abstract public function extractRemoteType($entity_type);
 
   /**
     * 
